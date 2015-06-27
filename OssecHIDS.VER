@@ -1,0 +1,24 @@
+;----------------------------------------------------------------------------
+;
+;    MODULE NAME:   OssecHIDS.VER
+;
+;        $Author:   USER "Shramkop"  $
+;      $Revision:   1.0  $
+;          $Date:   11 Oct 2010 17:25:32  $
+;
+;    DESCRIPTION:   Ossec HIDS Deployment MSI.
+;
+;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+; ProductName = Ossec HIDS 
+; DESCRIPTION = Setup Automated Ossec HIDS Deployment.
+; Installed   = WINDOWS_ALL
+; Guid.UpgradeCode = {DB79FB9D-A01D-49C4-967F-40BD13BA74EB}
+; MsiName     = OssecHIDS
+;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+;############################################################################
+VERSION : 2.5.0
+DATE    : 11 Oct 2010
+CHANGES : See OSSEC changelog if interested.
+

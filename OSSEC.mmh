@@ -1,0 +1,58 @@
+;----------------------------------------------------------------------------
+;
+;    MODULE NAME:   OCCEC.MMH
+;
+;        $Author:   USER "Phil Shramko"  $
+;      $Revision:   1.0  $
+;          $Date:   11 Oct 2010 17:38:34  $
+;
+;----------------------------------------------------------------------------
+
+
+
+;----------------------------------------------------------------------------
+;--- Set up some options specific to your requirements ------------------------
+;----------------------------------------------------------------------------
+#define? DEPT_ARP_URL_PUBLISHER           http://yourweb.address.com
+#define? DEPT_ARP_URL_TECHNICAL_SUPPORT   http://yoursupportweb.address.com
+#define? DEPT_NAME                        Your name or your department name	
+#define? DEPT_ADDRESS                     Your Department Location	
+#define? COMPANY_CONTACT_NAME             Your Company Name	
+#define? COMPANY_CONTACT_NAME_PHONE       Your Phone Number        ;;Do you really want this here
+#define? COMPANY_SUMMARY_SCHEMA           110      ;;Minimum v1.1 Installer
+
+
+
+;----------------------------------------------------------------------------
+;--- Override/set some standard defaults ------------------------------------
+;----------------------------------------------------------------------------
+#define? DBG_ALL                                   Y         ;;Add MAKEMSI debugging to "console file"
+#define? DBG_SAY_LOCATION                           call Say2Logs <$DBG_INDENT> || '  ' || time() || ' '  ;;Adding time makes it a bit slower but useful for debugging slow builds...
+#define? COMMONFRAMEWORK_ZIP_SOURCE_FOR_BACKUP     N         ;;No "insurance" until I bother to install "info zip"...
+#define? DEFAULT_SERVICE_CONTROL_UNINSTALL_EVENTS            ;;I think this option is safer than the MAKEMSI default
+#define? DEFAULT_SERVICE_CONTROL_INSTALL_EVENTS              ;;I think this option is better
+#define? DEFAULT_FILE_WANT_FILEHASH                Y         ;;My box can generate MD5 hashes!
+#define? COMPANY_PREPROCESS_LICENCE_FILE           Y         ;;Default is to preprocess licence files
+#define? MAKEMSI_HTML_EXTENSION                    hta       ;;Default extension (HTML Application - gets around WINXP SP2 issue)
+#define? UISAMPLE_LEFTSIDE_TEXT_FONT_COLOR         &H7F0000  ;;Medium Blue in BGR (believe it or not...)
+#(
+    #define? UISAMPLE_LEFTSIDE_TEXT
+    Developed by <$DEPT_NAME> - <$DEPT_ADDRESS>.
+    You can put whatever you like here or replace with your own graphics etc.
+    This text defined in "ME.MMH"!
+#)
+#(
+    #define? @VALIDATE_TEXT_FOR_MISSINGDATA                   ;;Example only as now duplicates exact text as new default value
+    This column is not mentioned in the _Validation table.
+    Either add the validation data or use the "@validate" parameter
+    on the "row" command (or alter its default).
+#)
+
+
+
+;----------------------------------------------------------------------------
+;--- Include MAKEMSI support ------------------------------------------------
+;----------------------------------------------------------------------------
+#include "DEPT.MMH"
+
+
