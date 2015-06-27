@@ -39,36 +39,39 @@ figuring out to get it working.
 
 Here's how I did it.... 
 
-**NOTE:  Some Ossec Server installs are located in /var/ossec/ instead 
-of /opt/ossec/ so double-check your paths before moving on.*** 
+**NOTE:  Some Ossec Server installs are located in /var/ossec/ insteadof /opt/ossec/ so double-check your paths before moving on.
 
 Create a shell script in /opt/ossec/ (I named the file 
 "agentsaddfromlist.sh") and paste the following code into it. 
 
 ```bash
-  #!/bin/bash 
-  ## this is the last key's index number, taken via bin/agent_control 
-  ## 
-  ## -chuck 
-  indexStart=`/opt/ossec/bin/agent_control -l |grep ID: |awk '{print $2}' |tail -1 |cut -f1 -d,` 
-  indexStart=`expr $indexStart + 1` 
+#!/bin/bash 
+## this is the last key's index number, taken via bin/agent_control 
+## 
+## -chuck 
+OSSEC_HOME=""
+[ -d /opt/ossec] && OSSEC_HOME="/opt/ossec"
+[ -d /var/ossec] && OSSEC_HOME="/var/ossec"
+
+indexStart=`$OSSEC_HOME/bin/agent_control -l |grep ID: |awk '{print $2}' |tail -1 |cut -f1 -d,` 
+indexStart=`expr $indexStart + 1` 
 
  ## loop through the list of clients 
  ## 
- for line in `cat /opt/ossec/ossec_client_add.lst` 
+ for line in `cat $OSSEC_HOME/ossec_client_add.lst` 
  do 
    HOST=`echo $line|awk -F":" ' { print $1 } '` 
    IP=`echo $line|awk -F":" ' { print $2 } '` 
-   echo "<<EOF" > /opt/ossec/ossec_input_host.txt 
-   echo "A" >> /opt/ossec/ossec_input_host.txt 
-   echo $HOST >> /opt/ossec/ossec_input_host.txt 
-   echo $IP >> /opt/ossec/ossec_input_host.txt 
-   echo "$indexStart" >> /opt/ossec/ossec_input_host.txt 
-   echo "" >> /opt/ossec/ossec_input_host.txt 
-   echo "y" >> /opt/ossec/ossec_input_host.txt 
-   echo "q" >> /opt/ossec/ossec_input_host.txt 
-   echo ">>EOF" >> /opt/ossec/ossec_input_host.txt 
-   sudo /opt/ossec/bin/manage_agents < ossec_input_host.txt 
+   echo "<<EOF" > $OSSEC_HOME/ossec_input_host.txt 
+   echo "A" >> $OSSEC_HOME/ossec_input_host.txt 
+   echo $HOST >> $OSSEC_HOME/ossec_input_host.txt 
+   echo $IP >> $OSSEC_HOME/ossec_input_host.txt 
+   echo "$indexStart" >> $OSSEC_HOME/ossec_input_host.txt 
+   echo "" >> $OSSEC_HOME/ossec_input_host.txt 
+   echo "y" >> $OSSEC_HOME/ossec_input_host.txt 
+   echo "q" >> $OSSEC_HOME/ossec_input_host.txt 
+   echo ">>EOF" >> $OSSEC_HOME/ossec_input_host.txt 
+   sudo $OSSEC_HOME/bin/manage_agents < ossec_input_host.txt 
 
    ## test the addition of this client to OSSEC. if we pass then add 1 
    ## to the value of index.  if we fail leave the index value as is 
@@ -91,7 +94,7 @@ like.
 
 **Note: that there are no spaces, the machine name and IP address are 
 separated by a colon ":" and subnet masks work fine in here for those 
-of us that have DHCP assigned IP addresses** 
+of us that have DHCP assigned IP addresses**
 
 abcd4321:172.10.14.45 
 qwerty321:10.7.0.0/16 
@@ -120,7 +123,9 @@ in /opt/ossec/ we need to run it.
 
 Type this into a console on your ossec server and watch it run: 
 
+```bash
 sudo ./opt/ossec/addagentsfromlist.sh 
+```
 
 You could be logged into the server as root and run the command 
 without sudo.  It works well like that, but it's less security 
