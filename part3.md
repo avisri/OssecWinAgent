@@ -148,11 +148,9 @@ that we will want to copy the correct distribute keys file to our
                        OssecHIDS.VER 
                        OssecHIDSx64.MM 
 
-                            [-](folder) C:\MSIBuilds\ossec\ArchConfigs 
-\ 
-ossec_distribute_keys.cmd 
-  
-ossec_distribute_keys_x64.cmd 
+[-](folder) C:\MSIBuilds\ossec\ArchConfigs\ 
+                       ossec_distribute_keys.cmd 
+                       ossec_distribute_keys_x64.cmd 
 ```
 
 
