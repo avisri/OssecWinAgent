@@ -1,7 +1,6 @@
  
-Deploying Ossec HIDS via Active Directory Part 2 - Automating the 
-Windows Agent Configuration 
-==================================================================
+Deploying Ossec HIDS via Active Directory Part 2 - Automating the Windows Agent Configuration 
+==============================================================================================
 
 In the first part of this series we went over getting a large number 
 of agents to the Ossec Server from an easy to setup list of machines 
@@ -78,18 +77,16 @@ The rest of the files needed to place in your MSI Build directory
 (most of which I will provide here) are as follows... 
 
 
-Company.mmh 
-DEPT.mmh 
-ossec.keys - You should have your own by now so for security reasons I 
-can't post mine. 
-OSSEC.mmh 
-ossec-agent-win32-version#.exe -Must be at least version 2.5 for the 
-automated installation to work. 
-OssecHIDS.MM 
-OssecHIDS.rtf 
-OssecHIDS.VER 
+-Company.mmh 
+-DEPT.mmh 
+-ossec.keys - You should have your own by now so for security reasons I can't post mine. 
+-OSSEC.mmh 
+-ossec-agent-win32-version#.exe -Must be at least version 2.5 for the automated installation to work. 
+-OssecHIDS.MM 
+-OssecHIDS.rtf 
+-OssecHIDS.VER 
 and 
-OssecHIDSx64.MM 
+-OssecHIDSx64.MM 
 
 
 You will likely want to edit the uisample.mmh file located in your 
