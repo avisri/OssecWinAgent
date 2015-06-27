@@ -1,6 +1,8 @@
  
-ying Ossec HIDS via Active Directory Part 2 - Automating the 
+Deploying Ossec HIDS via Active Directory Part 2 - Automating the 
 Windows Agent Configuration 
+==================================================================
+
 In the first part of this series we went over getting a large number 
 of agents to the Ossec Server from an easy to setup list of machines 
 via script and getting the client.keys file ready.  Then we went ahead 
@@ -38,238 +40,15 @@ preserve formatting).  You should keep the names of the script files
 as noted unless you are very familiar with MAKEMSI and can do the 
 editing needed to the MSI build scripts. 
 
-ossec_distribute_keys.cmd 
-
-
-<*Begin copy here*> 
-
-
-@ECHO OFF 
-
-::***************************************** 
-::* SET YOUR OSSEC SERVER IP ADDRESS * 
-::***************************************** 
-SET OSSECSERVER=***Ossec Server IP here*** 
-
-::******************************************************************************************************* 
-::* DEFINE OSSECPATH VARIABLE AS SET BY THE Ossec HIDS INSTALLATION IN 
-THE WINDOWS REGISTRY * 
-::******************************************************************************************************* 
-FOR /f "tokens=1-2,*" %%i in ('reg query HKEY_LOCAL_MACHINE\SOFTWARE 
-\ossec 
-^| find "Install_Dir"') do SET OSSECPATH=%%k 
-IF "%OSSECPATH:~-1%"==" " SET OSSECPATH=%OSSECPATH:~0,-1% 
-
-::********************************************************************************************* 
-::* VERIFY THAT OSSEC INSTALLED SUCCESSFULLY BEFORE PROCEEDING TO 
-CONFIGURATION * 
-::********************************************************************************************* 
-IF DEFINED OSSECPATH (ECHO Ossec installation found at %OSSECPATH%. 
-Continuing with configuration.) 
-IF NOT DEFINED OSSECPATH GOTO EXIT_ON_ERROR 
-
-::**************************************** 
-::* CHECK FOR MASTER CLIENT KEYFILE * 
-::**************************************** 
- IF EXIST "%CD%\ossec.keys" ECHO Client keyfile index found - Getting 
-security configuration information. 
-IF NOT EXIST "%CD%\ossec.keys" GOTO MASTER_KEYFILE_NOT_FOUND 
-
-::******************************************* 
-::* ENABLE DELAYED VARIABLE EXPANSION * 
-::******************************************* 
-@ECHO OFF > "%OSSECPATH%\client.keys" & SETLOCAL 
-ENABLEDELAYEDEXPANSION 
-
-::******************************************************************************************************** 
-::* FIND COMPUTERNAME IN  MASTER KEYFILE THEN GENERATE SPECIFIC AGENT 
-KEYFILE IN OSSECPATH * 
-::******************************************************************************************************** 
-findstr /I /C:"%COMPUTERNAME%" ossec.keys > "%OSSECPATH%\client.keys" 
-
-::*********************************************************************** 
-::* CONFIGURE ossec.conf FILE BEFORE RESTARTING OSSEC HIDS SERVICE * 
-::*********************************************************************** 
-SET LINE1=^<ossec_config^> 
-SET LINE2=  ^<client^> 
-SET LINE3=   ^<server-ip^>%OSSECSERVER%^</server-ip^> 
-SET LINE4=  ^</client^> 
-SET LINE5=^</ossec_config^> 
-
-ECHO !LINE1!>>"%OSSECPATH%\ossec.conf" 
-ECHO !LINE2!>>"%OSSECPATH%\ossec.conf" 
-ECHO !LINE3!>>"%OSSECPATH%\ossec.conf" 
-ECHO !LINE4!>>"%OSSECPATH%\ossec.conf" 
-ECHO !LINE5!>>"%OSSECPATH%\ossec.conf" 
-
-::************************************** 
-::* Restart Ossec Service and begin monitoring * 
-::************************************** 
-NET STOP OSSECSVC 
-NET START OSSECSVC 
-
-::************************************************************************************** 
-::* NOTIFY USERS/TECHS THAT INSTALLATION AND CONFIGURATION WAS 
-SUCCESSFUL * 
-::************************************************************************************** 
-MSG * Ossec HIDS installation and configuration completed 
-successfully. Click OK to exit 
-
-::*********************************************************************** 
-::* DELETE SENSITIVE FILES ONCE INSTALL IS COMPLETE AND VERIFIED * 
-::*********************************************************************** 
-DEL "%OSSECPATH%\ossec.keys" 
-DEL "%OSSECPATH%\ossec_distribute_keys.cmd" 
-EXIT 
-
-::********************************************************* 
-::* NOTIFY USERS/TECHS IF OSSEC INSTALLATION FAILED * 
-::********************************************************* 
-:EXIT_ON_ERROR 
-MSG * Ossec installation Failed.  Please contact support for 
-assistance. 
-EXIT 
-
-::*********************************************************** 
-::* NOTIFY USERS/TECHS IF MASTER KEYFILE IS NOT FOUND * 
-::*********************************************************** 
-:MASTER_KEYFILE_NOT_FOUND 
-MSG * Client keyfile not found - Manual security configuration 
-required.  Please contact support for assistance. 
-EXIT 
-
-<*End copy here*> 
-
-And here is the script for x64 machines 
-
-ossec_distribute_keys_x64.cmd 
-
-<*Begin copy below here*> 
-
-@ECHO OFF 
-
-
-::********************************************** 
-::* SET YOUR OSSEC SERVER IP ADDRESS HERE * 
-::********************************************** 
-SET OSSECSERVER=***Ossec Server IP here*** 
-
-
-::******************************************************************************************************* 
-::* DEFINE OSSECPATH VARIABLE AS SET BY THE Ossec HIDS INSTALLATION IN 
-THE WINDOWS REGISTRY * 
-::******************************************************************************************************* 
-SETLOCAL ENABLEDELAYEDEXPANSION 
-FOR /f "tokens=1-2,*" %%i in ('reg query HKEY_LOCAL_MACHINE\SOFTWARE 
-\Wow6432Node\ossec 
-^| find "Install_Dir"') do SET OSSECPATH=%%k 
-IF "!OSSECPATH:~-1!"==" " SET OSSECPATH="!OSSECPATH:~0,-1!" 
-
-
-::********************************************************************************************* 
-::* VERIFY THAT OSSEC INSTALLED SUCCESSFULLY BEFORE PROCEEDING TO 
-CONFIGURATION * 
-::********************************************************************************************* 
-IF DEFINED OSSECPATH (ECHO Ossec installation found at !OSSECPATH!. 
-Continuing with configuration.) 
-IF NOT DEFINED OSSECPATH GOTO EXIT_ON_ERROR 
-
-
-::**************************************** 
-::* CHECK FOR MASTER CLIENT KEYFILE * 
-::**************************************** 
-IF EXIST "%CD%\ossec.keys" ECHO Client keyfile index found - Getting 
-security configuration information. 
-IF NOT EXIST "%CD%\ossec.keys" GOTO MASTER_KEYFILE_NOT_FOUND 
-
-
-::******************************************* 
-::* ENABLE DELAYED VARIABLE EXPANSION * 
-::******************************************* 
-@ECHO OFF > %OSSECPATH%\ossec.keys & SETLOCAL ENABLEDELAYEDEXPANSION 
-
-
-::******************************************************************************************************** 
-::* FIND COMPUTERNAME IN  MASTER KEYFILE THEN GENERATE SPECIFIC AGENT 
-KEYFILE IN OSSECPATH * 
-::******************************************************************************************************** 
-findstr /I /C:"%COMPUTERNAME%" ossec.keys > "%OSSECPATH%\client.keys" 
-
-
-::*********************************************************************** 
-::* CONFIGURE ossec.conf FILE BEFORE RESTARTING OSSEC HIDS SERVICE * 
-::*********************************************************************** 
-SET LINE1=^<ossec_config^> 
-SET LINE2=  ^<client^> 
-SET LINE3=   ^<server-ip^>%OSSECSERVER%^</server-ip^> 
-SET LINE4=  ^</client^> 
-SET LINE5=^</ossec_config^> 
-
-
-ECHO !LINE1!>>"%OSSECPATH%\ossec.conf" 
-ECHO !LINE2!>>"%OSSECPATH%\ossec.conf" 
-ECHO !LINE3!>>"%OSSECPATH%\ossec.conf" 
-ECHO !LINE4!>>"%OSSECPATH%\ossec.conf" 
-ECHO !LINE5!>>"%OSSECPATH%\ossec.conf" 
-
-
-::************************************** 
-::* Restart Ossec Service and begin monitoring * 
-::************************************** 
-NET STOP OSSECSVC 
-NET START OSSECSVC 
-
-
-::************************************************************************************** 
-::* NOTIFY USERS/TECHS THAT INSTALLATION AND CONFIGURATION WAS 
-SUCCESSFUL * 
-::************************************************************************************** 
-MSG * Ossec HIDS installation and configuration completed 
-successfully. Click OK to EXIT 
-
-
-
-
-::*********************************************************************** 
-::* DELETE SENSITIVE FILES ONCE INSTALL IS COMPLETE AND VERIFIED * 
-::*********************************************************************** 
-
-DEL "%OSSECPATH%\ossec.keys" 
-DEL "%OSSECPATH%\ossec_distribute_keys_x64.cmd" 
-EXIT 
-
-
-
-
-::********************************************************* 
-::* NOTIFY USERS/TECHS IF OSSEC INSTALLATION FAILED * 
-::********************************************************* 
-:EXIT_ON_ERROR 
-MSG * Ossec installation Failed.  Please contact support for 
-assistance. 
-EXIT 
-
-
-
-
-::******************************************************I***** 
-::* NOTIFY USERS/TECHS IF MASTER KEYFILE IS NOT FOUND * 
-::*********************************************************** 
-:MASTER_KEYFILE_NOT_FOUND 
-MSG * Client keyfile not found - Manual security configuration 
-required.  Please contact support for assistance. 
-EXIT 
-
-
-<*End copy here*> 
+[ossec_distribute_keys.cmd](https://github.com/avisri/OssecWinAgent/blob/master/post%20install%20config%20scripts_CORRECT%20FILE%20NEEDED%20FOR%20WIN32%20OR%20WIN64/ossec_distribute_keys.cmd)
 
 
 You'll need to edit the first variable to configure this to work in 
 your environment. 
 
-
-SET OSSECSERVER=***Ossec Server IP here*** 
-
+```
+SET OSSECSERVER=<Ossec Server IP here>
+```
 
 This should be pretty self-explanatory.  The rest of the script should 
 not need any modification.  Save these files and tuck them away for 
@@ -318,8 +97,9 @@ main MAKEMSI install directory (specifically line 1088).  Set this
 value to 1 instead of 0 for installs that you want to have a progress 
 bar but no user interaction. 
 
-#define? UISAMPLE_REDUCED_UI_VALUE         0               ;;0 = 
-normal, 1 = reduced UI (on install only) 
+```
+#define? UISAMPLE_REDUCED_UI_VALUE         0        ;;0 = normal, 1 = reduced UI (on install only) 
+```
 
 The rest of the code has been generalized so you will want to fill in 
 your information in them.  Most of the code does not need to be 
@@ -335,5 +115,4 @@ update them to the latest versions or setup deployments adding new
 machines in your companies in minutes instead of hours or days. 
 
 
-Tomorrow in Part 3 of the series I will tie it all together and show 
-you how it works.
+Tomorrow in [Part 3](https://github.com/avisri/OssecWinAgent/blob/master/part3.md) of the series I will tie it all together and show you how it works.
