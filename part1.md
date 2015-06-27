@@ -1,5 +1,5 @@
 Deploying Ossec HIDS via Active Directory - Part 1 
-
+===================================================
 In my first blog series I'm going to go over one way to deploy Ossec 
 HIDS to windows PCs in a network via Active Directory software 
 deployment.  In it's current form, Ossec HIDS is fairly easy to deploy 
@@ -45,18 +45,18 @@ of /opt/ossec/ so double-check your paths before moving on.***
 Create a shell script in /opt/ossec/ (I named the file 
 "agentsaddfromlist.sh") and paste the following code into it. 
 
+```bash
   #!/bin/bash 
-   ## this is the last key's index number, taken via bin/agent_control 
-   ## 
-   ## -chuck 
-   indexStart=`/opt/ossec/bin/agent_control -l |grep ID: |awk '{print 
-$2}' |tail -1 |cut -f1 -d,` 
-   indexStart=`expr $indexStart + 1` 
+  ## this is the last key's index number, taken via bin/agent_control 
+  ## 
+  ## -chuck 
+  indexStart=`/opt/ossec/bin/agent_control -l |grep ID: |awk '{print $2}' |tail -1 |cut -f1 -d,` 
+  indexStart=`expr $indexStart + 1` 
 
-   ## loop through the list of clients 
-   ## 
-   for line in `cat /opt/ossec/ossec_client_add.lst` 
-   do 
+ ## loop through the list of clients 
+ ## 
+ for line in `cat /opt/ossec/ossec_client_add.lst` 
+ do 
    HOST=`echo $line|awk -F":" ' { print $1 } '` 
    IP=`echo $line|awk -F":" ' { print $2 } '` 
    echo "<<EOF" > /opt/ossec/ossec_input_host.txt 
@@ -70,19 +70,16 @@ $2}' |tail -1 |cut -f1 -d,`
    echo ">>EOF" >> /opt/ossec/ossec_input_host.txt 
    sudo /opt/ossec/bin/manage_agents < ossec_input_host.txt 
 
-   ## test the addition of this client to OSSEC.  if we pass then add 
-1 
+   ## test the addition of this client to OSSEC. if we pass then add 1 
    ## to the value of index.  if we fail leave the index value as is 
    if [ $? -eq 0 ] 
-           then 
+   then 
            indexStart=`expr $indexStart + 1` 
            echo "Added $HOST to client.keys" 
-           else : 
+   else : 
    fi 
-   ## 
-   ## done looping through the list of clients 
-
-   done 
+ done 
+```
 
 Next we need to setup a list with the machines we want to add to our 
 server.  This should also be placed in the /opt/ossec/ folder on your 
@@ -92,7 +89,7 @@ but it needs to be formatted specifically for the script to properly
 parse it.  Below is a small sample of what your list should look 
 like. 
 
-**Note that there are no spaces, the machine name and IP address are 
+**Note: that there are no spaces, the machine name and IP address are 
 separated by a colon ":" and subnet masks work fine in here for those 
 of us that have DHCP assigned IP addresses** 
 
@@ -169,7 +166,7 @@ we are going to do in this write-up.
 
 Admittedly there are alot of things needed to install MAKEMSI and have 
 it working properly, but it is not very difficult and we end up with a 
-very good package development machine in the process.  For now I;ll 
+very good package development machine in the process.  For now I will 
 leave you to the task of setting up your development box.  Tomorrow we 
 will cover the rest of this deployment process. 
 
